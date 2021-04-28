@@ -85,4 +85,9 @@ class APICompanyDataService implements CompanyDataService
             $value
         );
     }
+
+    public function getByRegcode(int $regcode): Company
+    {
+        return Company::where('regcode', '=', $regcode)->firstOrFail();
+    }
 }

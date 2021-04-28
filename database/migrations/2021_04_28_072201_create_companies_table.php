@@ -14,7 +14,7 @@ class CreateCompaniesTable extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('_id')->unsigned()->unique();
-            $table->bigInteger('regcode');
+            $table->bigInteger('regcode')->unsigned()->unique();
             $table->string('sepa');
             $table->string('name');
             $table->string('name_before_quotes');

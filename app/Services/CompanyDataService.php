@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\Company;
 use Generator;
 use Illuminate\Support\Collection;
 
@@ -16,4 +17,6 @@ interface CompanyDataService
     public function count(): int;
 
     public function search(string $searchTerm): Collection;
+
+    public function getByRegcode(int $regcode): Company;
 }
