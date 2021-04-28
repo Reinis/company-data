@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class CompanyImport extends Command implements SignalableCommandInterface
 {
@@ -49,7 +50,10 @@ class CompanyImport extends Command implements SignalableCommandInterface
 
             $max = ceil(($total - $offset) / $limit);
 
-            DB::connection()->unsetEventDispatcher();
+            if ($max > 100 && $this->getOutput()->getVerbosity() !== OutputInterface::VERBOSITY_DEBUG) {
+                $this->info("Unsetting event dispatcher for bulk import...");
+                DB::connection()->unsetEventDispatcher();
+            }
 
             $companyData = $companyDataService->getRecords($limit, $offset);
 
