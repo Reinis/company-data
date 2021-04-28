@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use Generator;
+use Illuminate\Support\Collection;
 
 interface CompanyDataService
 {
@@ -13,4 +14,6 @@ interface CompanyDataService
     public function getLastId(): int;
 
     public function count(): int;
+
+    public function search(string $searchTerm): Collection;
 }

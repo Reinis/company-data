@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Company;
 use Generator;
+use Illuminate\Support\Collection;
 use RuntimeException;
 
 class APICompanyDataService implements CompanyDataService
@@ -53,5 +54,35 @@ class APICompanyDataService implements CompanyDataService
         $result = $this->fetchPage();
 
         return $result['result']['total'];
+    }
+
+    public function search(string $searchTerm): Collection
+    {
+        return Company::select(
+            [
+                'regcode',
+                'name_in_quotes',
+                'type',
+                'address',
+            ]
+        )
+            ->where(
+                'name',
+                'like',
+                '%' . $this->escape_like($searchTerm) . '%'
+            )
+            ->get();
+    }
+
+    /**
+     * Escape special characters for a LIKE query.
+     */
+    private function escape_like(string $value, string $char = '\\'): string
+    {
+        return str_replace(
+            [$char, '%', '_'],
+            [$char . $char, $char . '%', $char . '_'],
+            $value
+        );
     }
 }
