@@ -8,8 +8,9 @@ use App\Services\CompanyDataService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
+use Symfony\Component\Console\Command\SignalableCommandInterface;
 
-class CompanyImport extends Command
+class CompanyImport extends Command implements SignalableCommandInterface
 {
     use Progress;
 
@@ -26,6 +27,8 @@ class CompanyImport extends Command
      * @var string
      */
     protected $description = 'Import company data from data.gov.lv';
+
+    private bool $beenSignaled = false;
 
     /**
      * Execute the console command.
@@ -48,13 +51,20 @@ class CompanyImport extends Command
 
             DB::connection()->unsetEventDispatcher();
 
-            foreach ($progressBar->iterate($companyDataService->getRecords($limit, $offset), $max) as $batch) {
+            $companyData = $companyDataService->getRecords($limit, $offset);
+
+            foreach ($progressBar->iterate($companyData, $max) as $batch) {
                 $progressBar->setMessage(last($batch)['_id']);
                 Company::upsert(
                     $batch,
                     ['_id'],
                     $fillable
                 );
+
+                if ($this->beenSignaled) {
+                    $this->info("\nStopping...");
+                    return 2;
+                }
             }
         } catch (RuntimeException $e) {
             $this->error($e->getMessage());
@@ -64,5 +74,15 @@ class CompanyImport extends Command
         $this->newLine();
 
         return 0;
+    }
+
+    public function getSubscribedSignals(): array
+    {
+        return [SIGINT, SIGTERM];
+    }
+
+    public function handleSignal(int $signal): void
+    {
+        $this->beenSignaled = true;
     }
 }
