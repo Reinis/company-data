@@ -50,7 +50,7 @@ class CompanyImport extends Command implements SignalableCommandInterface
 
             $max = ceil(($total - $offset) / $limit);
 
-            if ($max > 100 && $this->getOutput()->getVerbosity() !== OutputInterface::VERBOSITY_DEBUG) {
+            if ($total - $offset > 100 && $this->getOutput()->getVerbosity() !== OutputInterface::VERBOSITY_DEBUG) {
                 $this->info("Unsetting event dispatcher for bulk import...");
                 DB::connection()->unsetEventDispatcher();
             }
